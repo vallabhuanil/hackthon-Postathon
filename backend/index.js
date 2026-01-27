@@ -18,7 +18,7 @@ const port = 3001;
 // middlewares
 app.use(
   cors({
-    origin: "http://172.19.21.148:3000",
+    origin: "http://localhost:3000",
     credentials: true,
   })
 );

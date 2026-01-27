@@ -2,7 +2,7 @@ import React from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import { Outlet } from 'react-router-dom';
-
+import ChatBot from './ChatBot';
 
 const Layout = ({ isAdmin, setIsAdmin }) => {
   return (
@@ -25,7 +25,7 @@ const Layout = ({ isAdmin, setIsAdmin }) => {
           </div>
         </div>
       </main>
-     
+     <ChatBot />
       {/* Footer */}
       <div className="relative z-40">
         <div className="absolute inset-0 bg-gradient-to-t from-red-900/10 to-transparent h-4"></div>

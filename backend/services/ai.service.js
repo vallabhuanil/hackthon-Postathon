@@ -33,7 +33,7 @@ ${serviceType}
 
 COMPLAINT TYPE:
 ${complaintType}
-
+ 
 COMPLAINT DESCRIPTION:
 "${complaintText || "No description provided"}"
 

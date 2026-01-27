@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Base_url from "../components/Base_url";
 
-const OfficerDashboardPages = () => {
+const OfficerDashboardPage = () => {
   const navigate = useNavigate();
 
   const [complaints, setComplaints] = useState([]);
   const [filteredComplaints, setFilteredComplaints] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [processingId, setProcessingId] = useState(null); // Track which complaint is being processed
+  const [processingId, setProcessingId] = useState(null); 
 
   const [stats, setStats] = useState({
     total: 0,
@@ -119,8 +119,7 @@ const OfficerDashboardPages = () => {
       setComplaints(updated);
       calculateStats(updated);
       
-      // Show success message
-      alert("Investigation started successfully!");
+      
       
     } catch {
       alert("Failed to start investigation");
@@ -172,169 +171,7 @@ const OfficerDashboardPages = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
       {/* Header */}
-      <header className="bg-gradient-to-r from-red-800 via-red-700 to-red-800 text-white shadow-xl sticky top-0 z-50">
-        {/* Top Info Bar */}
-        <div className="bg-yellow-400 text-gray-900 py-1 px-4">
-          <div className="container mx-auto flex justify-between items-center text-xs">
-            <span>🔒 सुरक्षित - Secure Officer Portal</span>
-            <div className="flex gap-4">
-              <span>📊 Real-time Dashboard</span>
-              <span>🛡️ Authorized Access Only</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Header */}
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex flex-col lg:flex-row items-center justify-between">
-            
-            {/* Left - Branding */}
-            <div className="flex items-center mb-4 lg:mb-0">
-              <div className="relative">
-                <div className="relative bg-white rounded-full p-2 mr-4 shadow-lg">
-                  <div className="absolute inset-0 bg-gradient-to-br from-red-600 to-red-800 rounded-full opacity-90"></div>
-                  <svg className="relative w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                  </svg>
-                </div>
-                <div className="absolute -right-1 -top-1 bg-yellow-400 rounded-full w-5 h-5 flex items-center justify-center">
-                  <span className="text-xs font-bold text-red-800">OF</span>
-                </div>
-              </div>
-              
-              <div className="ml-2">
-                <div className="flex items-baseline">
-                  <h1 className="text-xl font-bold tracking-wide">Officer Dashboard</h1>
-                  <div className="ml-3 bg-white text-red-700 px-2 py-1 rounded text-xs font-bold">
-                    भारतीय डाक
-                  </div>
-                </div>
-                <div className="flex items-center mt-1">
-                  <div className="w-12 h-1 bg-yellow-400 mr-2"></div>
-                  <p className="text-xs text-yellow-100 font-medium">
-                    Complaint Management Portal
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            {/* Center - Welcome Message */}
-            <div className="text-center mb-4 lg:mb-0 lg:mx-8">
-              <div className="relative inline-block">
-                <h2 className="text-lg font-bold bg-gradient-to-r from-yellow-300 to-yellow-100 bg-clip-text text-transparent">
-                  Welcome, Officer
-                </h2>
-                <p className="text-sm text-yellow-100 mt-1">
-                  {localStorage.getItem("officer_email") || "Officer"}
-                </p>
-              </div>
-            </div>
-            
-            {/* Right - Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
-              {/* Back to Home */}
-              <button
-                onClick={() => navigate("/")}
-                className="group relative overflow-hidden bg-white/10 backdrop-blur-sm border border-white/30 rounded-xl px-4 py-2.5 hover:bg-white/20 transition-all duration-300 flex items-center justify-center"
-              >
-                <svg className="w-4 h-4 mr-2 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                </svg>
-                <span className="relative font-medium text-sm">Home</span>
-              </button>
-              
-              {/* Logout Button */}
-              <button
-                onClick={() => {
-                  localStorage.clear();
-                  navigate("/officer/login");
-                }}
-                className="group relative overflow-hidden bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 rounded-xl px-5 py-2.5 font-semibold hover:shadow-xl hover:shadow-yellow-500/30 transition-all duration-300 flex items-center justify-center hover:scale-[1.02] text-sm"
-              >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                </svg>
-                <span className="relative">Logout</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Navigation Menu */}
-        <nav className="bg-gradient-to-r from-red-900 via-red-800 to-red-900 border-t border-red-700/50 shadow-inner">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-wrap justify-center items-center py-2 gap-1 md:gap-0">
-              
-              {/* Navigation Items */}
-              <button 
-                onClick={() => navigate("/officer/dashboard")}
-                className="group relative px-4 py-3 rounded-lg bg-white/10 transition-all duration-200 flex items-center mx-1"
-              >
-                <svg className="w-5 h-5 mr-2 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                </svg>
-                <span className="font-medium">Dashboard</span>
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-3/4 h-0.5 bg-yellow-400 transition-all duration-300"></div>
-              </button>
-              
-              <div className="w-px h-6 bg-red-600/50 mx-2 hidden md:block"></div>
-              
-              <button 
-                onClick={() => navigate("/officer/complaints")}
-                className="group relative px-4 py-3 rounded-lg hover:bg-white/10 transition-all duration-200 flex items-center mx-1"
-              >
-                <svg className="w-5 h-5 mr-2 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <span className="font-medium">All Complaints</span>
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 group-hover:w-3/4 h-0.5 bg-yellow-400 transition-all duration-300"></div>
-              </button>
-              
-              <div className="w-px h-6 bg-red-600/50 mx-2 hidden md:block"></div>
-              
-              <button 
-                onClick={() => navigate("/officer/analytics")}
-                className="group relative px-4 py-3 rounded-lg hover:bg-white/10 transition-all duration-200 flex items-center mx-1"
-              >
-                <svg className="w-5 h-5 mr-2 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-                <span className="font-medium">Analytics</span>
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 group-hover:w-3/4 h-0.5 bg-yellow-400 transition-all duration-300"></div>
-              </button>
-              
-              <div className="w-px h-6 bg-red-600/50 mx-2 hidden md:block"></div>
-              
-              <button 
-                onClick={() => navigate("/officer/settings")}
-                className="group relative px-4 py-3 rounded-lg hover:bg-white/10 transition-all duration-200 flex items-center mx-1"
-              >
-                <svg className="w-5 h-5 mr-2 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-                <span className="font-medium">Settings</span>
-                <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 group-hover:w-3/4 h-0.5 bg-yellow-400 transition-all duration-300"></div>
-              </button>
-            </div>
-          </div>
-        </nav>
-
-        {/* Status Bar */}
-        <div className="bg-blue-900/90 py-1.5">
-          <div className="container mx-auto px-4">
-            <div className="flex flex-wrap items-center justify-center text-xs gap-4">
-              <div className="flex items-center">
-                <div className="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
-                <span className="text-yellow-100">System Status: <span className="font-bold text-green-300">Operational</span></span>
-              </div>
-              <span className="text-yellow-100 hidden md:inline">Last Updated: Today</span>
-              <span className="text-yellow-100 hidden md:inline">Total Complaints: <span className="font-bold text-yellow-300">1,24,567</span></span>
-            </div>
-          </div>
-        </div>
-      </header>
-
+      
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Welcome Banner */}
@@ -732,4 +569,4 @@ const OfficerDashboardPages = () => {
   );
 };
 
-export default OfficerDashboardPages;
+export default OfficerDashboardPage;

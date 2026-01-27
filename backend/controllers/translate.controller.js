@@ -1,78 +1,112 @@
-import axios from "axios";
+// controllers/translate.controller.js
+import { GoogleGenAI } from "@google/genai";
 
+class TranslateService {
+  constructor() {
+    this.apiKey = process.env.GEMINI_API_KEY;
+
+    console.log("TranslateService initialized");
+    console.log("GEMINI_API_KEY present:", !!this.apiKey);
+
+    if (this.apiKey) {
+      this.ai = new GoogleGenAI(this.apiKey);
+    } else {
+      this.ai = null;
+    }
+  }
+
+  async translateText({ text, to }) {
+    try {
+      console.log("AI translateText called");
+      console.log("this.ai =", this.ai);
+
+      if (!this.ai) {
+        throw new Error("Gemini API key not configured");
+      }
+
+      const prompt = `
+Translate the following text from English to ${to}.
+
+TEXT TO TRANSLATE:
+"${text}"
+
+### TRANSLATION GUIDELINES:
+- Translate accurately preserving all emojis and symbols
+- Maintain the same tone and formality
+- Keep any technical terms or proper names unchanged
+- Preserve formatting like line breaks if present
+
+### OUTPUT FORMAT:
+Respond ONLY with the translated text in ${to}.
+Do not add explanations, markdown, or extra text.
+`;
+
+      const response = await this.ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        generationConfig: {
+          temperature: 0.1,
+          maxOutputTokens: 200,
+        },
+      });
+
+      const rawText = response.text;
+      if (!rawText) {
+        throw new Error("Empty response from Gemini");
+      }
+
+      // Clean text
+      let cleanText = rawText.trim();
+      
+      return {
+        translatedText: cleanText,
+        original: text,
+        language: to
+      };
+      
+    } catch (error) {
+      console.error("Translation Error:", error.message);
+
+      // 🔒 HARD FAIL-SAFE (DO NOT BREAK CHAT FLOW)
+      return {
+        translatedText: text,
+        original: text,
+        language: to,
+        error: "Translation failed, using original text"
+      };
+    }
+  }
+}
+
+// ✅ EXPORT SINGLETON (SAME FORMAT)
+const translateService = new TranslateService();
+
+// Express controller function
 export const translateText = async (req, res) => {
   try {
-    const { text, from = "en", to = "hi" } = req.body;
+    const { text, to } = req.body;
     
-    console.log("Translation request:", { text, from, to });
+    console.log("Translation request:", { text, to });
     
-    if (!text) {
-      return res.status(400).json({ error: "Text is required" });
-    }
-
-    if (to === "en") {
+    if (!text || to === "en") {
       return res.json({ translatedText: text });
     }
 
-    // Google Translate API
-    const apiKey = process.env.GOOGLE_TRANSLATE_API_KEY;
-    
-    if (!apiKey) {
-      return res.status(500).json({ 
-        error: "Translation API key not configured",
-        translatedText: text 
-      });
-    }
-
-    const response = await axios.post(
-      `https://translation.googleapis.com/language/translate/v2`,
-      {
-        q: text,
-        source: from,
-        target: to,
-        format: "text"
-      },
-      {
-        params: { key: apiKey },
-        headers: { "Content-Type": "application/json" }
-      }
-    );
-
-    const translatedText = response.data.data.translations[0].translatedText;
-    
-    console.log("Translation successful:", { original: text, translated: translatedText });
+    const result = await translateService.translateText({ text, to });
     
     res.json({ 
       success: true,
-      translatedText,
-      original: text,
-      from,
-      to 
+      translatedText: result.translatedText,
+      original: result.original
     });
     
   } catch (error) {
-    console.error("Translation error:", error.response?.data || error.message);
-    
-    // Fallback translation using a free service if Google fails
-    try {
-      const fallbackRes = await axios.post("https://libretranslate.de/translate", {
-        q: req.body.text,
-        source: req.body.from || "en",
-        target: req.body.to || "hi",
-        format: "text"
-      });
-      
-      res.json({
-        success: true,
-        translatedText: fallbackRes.data.translatedText || req.body.text,
-        fallback: true
-      });
-    } catch (fallbackError) {
-      res.status(500).json({ 
-        error: "Translation failed",
-        translatedText: req.body.text,
-        message: error.message 
-      });
-    }
+    console.error("Controller error:", error);
+    res.json({ 
+      translatedText: req.body.text || "",
+      error: "Translation service unavailable"
+    });
   }
 };
+
+export default translateService;

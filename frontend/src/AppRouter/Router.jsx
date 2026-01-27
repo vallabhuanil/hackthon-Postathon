@@ -7,7 +7,7 @@ import OfficerLoginPage from "../pages/OfficerLoginPage";
 import OfficerDashboardPage from "../pages/dashboard";
 import ComplaintDetailPage from "../pages/ViewDetailPage";
 import FAQPage from "../pages/FaqPage";
-import OfficerDashboardPages from "../pages/OfficerDashboard";
+
 import OfficerLayout from "../components/OfficerLayout";
 const Router = () => {
   return (

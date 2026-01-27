@@ -1,87 +1,110 @@
+// utils/translate.js
 import axios from "axios";
 
-// Cache translations to reduce API calls
+// Cache for translations
 const translationCache = {};
+
+// Your backend URL
+const BACKEND_URL = "http://localhost:3001/api";
 
 export const translate = async (text, targetLang) => {
   // Return original text if target is English or no text
-  if (!text || targetLang === "en") {
+  if (!text || targetLang === "en" || !text.trim()) {
     return text;
   }
 
   // Check cache first
   const cacheKey = `${text}-${targetLang}`;
   if (translationCache[cacheKey]) {
+    console.log("Using cached translation for:", text.substring(0, 30));
     return translationCache[cacheKey];
   }
 
   try {
-    console.log(`Translating: "${text.substring(0, 50)}..." to ${targetLang}`);
+    console.log(`Translating to ${targetLang}:`, text.substring(0, 50));
 
-    // Use your backend API
-    const response = await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:5000/api'}/translate`, {
-      text,
-      to: targetLang,
-      from: "en"
-    }, {
-      timeout: 5000, // 5 second timeout
-      headers: {
-        'Content-Type': 'application/json'
+    // Call your backend translation endpoint
+    const response = await axios.post(
+      `${BACKEND_URL}/translate/`,
+      {
+        text: text,
+        to: targetLang,
+        from: "en"  // Assuming source is English
+      },
+      {
+        timeout: 10000, // 10 second timeout
+        headers: {
+          'Content-Type': 'application/json'
+        }
       }
-    });
+    );
 
-    if (response.data.success) {
+    console.log("Translation response:", response.data);
+
+    if (response.data && response.data.translatedText) {
       const translatedText = response.data.translatedText;
       
       // Cache the result
       translationCache[cacheKey] = translatedText;
       
       return translatedText;
+    } else if (response.data && response.data.translation) {
+      // Alternative response format
+      const translatedText = response.data.translation;
+      translationCache[cacheKey] = translatedText;
+      return translatedText;
     } else {
-      console.warn("Translation API returned error:", response.data);
-      return text;
+      console.warn("Unexpected response format:", response.data);
+      return text; // Return original if response format is unexpected
     }
   } catch (error) {
-    console.error("Translation error:", error);
+    console.error("Translation error details:", {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status,
+      url: error.config?.url
+    });
 
-    // Fallback to a free translation service if your API fails
-    if (error.response?.status === 404 || error.code === 'ECONNREFUSED') {
-      try {
-        console.log("Trying fallback translation service...");
-        
-        // Using LibreTranslate (free public instance)
-        const fallbackResponse = await axios.post(
-          "https://libretranslate.de/translate",
-          {
-            q: text,
-            source: "en",
-            target: targetLang,
-            format: "text"
-          },
-          {
-            timeout: 3000,
-            headers: {
-              'Content-Type': 'application/json'
-            }
+    // Fallback to free translation service
+    try {
+      console.log("Trying fallback translation service...");
+      
+      // Using a free translation service as fallback
+      const fallbackResponse = await axios.post(
+        "https://libretranslate.com/translate",
+        {
+          q: text,
+          source: "en",
+          target: targetLang,
+          format: "text"
+        },
+        {
+          timeout: 5000,
+          headers: {
+            'Content-Type': 'application/json'
           }
-        );
+        }
+      );
 
+      if (fallbackResponse.data && fallbackResponse.data.translatedText) {
         const translatedText = fallbackResponse.data.translatedText;
         translationCache[cacheKey] = translatedText;
         return translatedText;
-      } catch (fallbackError) {
-        console.error("Fallback translation also failed:", fallbackError);
       }
+    } catch (fallbackError) {
+      console.error("Fallback translation also failed:", fallbackError.message);
     }
 
     // Return original text as last resort
+    console.log("Returning original text due to translation failure");
     return text;
   }
 };
 
-// Clear cache function (optional)
+// Clear cache function
 export const clearTranslationCache = () => {
   Object.keys(translationCache).forEach(key => {
     delete translationCache[key];
   });
+  console.log("Translation cache cleared");
 };
