@@ -39,10 +39,7 @@ const OfficerLoginPage = () => {
   };
 
   // Demo credentials for judges
-  const fillDemoCredentials = () => {
-    setEmail("demo@post.gov");
-    setPassword("demo123");
-  };
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">

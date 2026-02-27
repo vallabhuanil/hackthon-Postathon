@@ -18,13 +18,16 @@ const port = 3001;
 // middlewares
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "https://hackthon-postathon.vercel.app",
     credentials: true,
   })
 );
 app.use(express.json());
 app.set("trust proxy", 1);
 
+app.get("/", (req, res) => {
+res.status(200).send("India Post Complaint Backend Running");
+});
 // create tables on startup (demo-safe)
 CreateTables();
 app.use("/api/translate", translateRoutes);
