@@ -1,4 +1,4 @@
-// const Base_url = "http://localhost:3001/api"; <-- Old Local URL
-const Base_url = "https://vinod93-postathon.hf.space/api"; // <-- New Live URL
+// const Base_url = "http://localhost:3001/api";
+const Base_url = "https://hackthon-postathon.onrender.com/api";
 
 export default Base_url;
