@@ -13,7 +13,7 @@ import trackingOtpRoutes from "./routes/otp.tracking.routes.js";
 import translateRoutes from "./routes/translate.routes.js";
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 // middlewares
 app.use(
